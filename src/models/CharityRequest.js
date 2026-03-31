@@ -52,11 +52,10 @@ const charityRequestSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-charityRequestSchema.pre('save', function (next) {
+charityRequestSchema.pre('save', async function () {
   if (this.collectedAmount >= this.targetAmount) {
     this.status = 'completed';
   }
-  next();
 });
 
 module.exports = mongoose.model('CharityRequest', charityRequestSchema);

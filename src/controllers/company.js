@@ -49,6 +49,9 @@ const createEventRequest = async (req, res) => {
   try {
     const { title, description, date, location, peopleNeeded } = req.body;
 
+    const transferDetails = req.body.transferDetails === 'true' ? true : false;
+
+
     if (req.user.type !== 'event') {
       return res.status(403).json({ message: 'Faqat event company yuborishi mumkin' });
     }
@@ -82,6 +85,7 @@ const createEventRequest = async (req, res) => {
 const createCharityRequest = async (req, res) => {
   try {
     const { title, description, targetAmount, payment_link } = req.body;
+
 
     if (req.user.type !== 'charity') {
       return res.status(403).json({ message: 'Faqat charity company yuborishi mumkin' });

@@ -39,9 +39,9 @@ const eventRequestSchema = new mongoose.Schema({
   ],
   files: [
     {
-      originalName: { type: String },   
-      path: { type: String },           
-      mimetype: { type: String }        
+      originalName: { type: String },
+      path: { type: String },
+      mimetype: { type: String }
     }
   ],
   status: {
@@ -51,11 +51,11 @@ const eventRequestSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-eventRequestSchema.pre('save', function (next) {
+
+eventRequestSchema.pre('save', async function () {
   if (this.attendees.length >= this.peopleNeeded) {
     this.status = 'completed';
   }
-  next();
 });
 
 module.exports = mongoose.model('EventRequest', eventRequestSchema);

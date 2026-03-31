@@ -122,7 +122,7 @@ const acceptRequest = async (req, res) => {
     const request = await Model.findByIdAndUpdate(
       id,
       { status: 'accepted' },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!request) {
@@ -146,7 +146,7 @@ const rejectRequest = async (req, res) => {
     const request = await Model.findByIdAndUpdate(
       id,
       { status: 'rejected' },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!request) {
