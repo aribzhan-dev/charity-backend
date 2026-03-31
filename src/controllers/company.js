@@ -1,0 +1,128 @@
+const Company = require('../models/Company');
+const EventRequest = require('../models/EventRequest');
+const CharityRequest = require('../models/CharityRequest');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const company = await Company.findOne({ email });
+    if (!company) {
+      return res.status(404).json({ message: 'Company topilmadi' });
+    }
+
+    if (!company.isActive) {
+      return res.status(403).json({ message: 'Company bloklangan' });
+    }
+
+    const isMatch = await bcrypt.compare(password, company.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Parol noto\'ğri' });
+    }
+
+    const token = jwt.sign(
+      { id: company._id, role: 'company', type: company.type },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    res.status(200).json({
+      message: 'Login muvaffaqiyatli',
+      token,
+      company: {
+        id: company._id,
+        company_name: company.company_name,
+        email: company.email,
+        type: company.type
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server xatosi', error: error.message });
+  }
+};
+
+
+
+const createEventRequest = async (req, res) => {
+  try {
+    const { title, description, date, location, peopleNeeded } = req.body;
+
+    if (req.user.type !== 'event') {
+      return res.status(403).json({ message: 'Faqat event company yuborishi mumkin' });
+    }
+
+    const files = req.files?.map(file => ({
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype
+    })) || [];
+
+    const eventRequest = await EventRequest.create({
+      company: req.user.id,
+      title,
+      description,
+      date,
+      location,
+      peopleNeeded,
+      transferDetails,
+      files
+    });
+
+    res.status(201).json({ message: 'Event request yuborildi', eventRequest });
+  } catch (error) {
+    res.status(500).json({ message: 'Server xatosi', error: error.message });
+  }
+};
+
+
+
+
+const createCharityRequest = async (req, res) => {
+  try {
+    const { title, description, targetAmount, payment_link } = req.body;
+
+    if (req.user.type !== 'charity') {
+      return res.status(403).json({ message: 'Faqat charity company yuborishi mumkin' });
+    }
+
+    const files = req.files?.map(file => ({
+      originalName: file.originalname,
+      path: file.path,
+      mimetype: file.mimetype
+    })) || [];
+
+    const charityRequest = await CharityRequest.create({
+      company: req.user.id,
+      title,
+      description,
+      targetAmount,
+      payment_link, 
+      files
+    });
+
+    res.status(201).json({ message: 'Charity request yuborildi', charityRequest });
+  } catch (error) {
+    res.status(500).json({ message: 'Server xatosi', error: error.message });
+  }
+};
+
+
+
+
+const getMyRequests = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const filter = { company: req.user.id, ...(status && { status }) };
+
+    const Model = req.user.type === 'event' ? EventRequest : CharityRequest;
+    const requests = await Model.find(filter);
+
+    res.status(200).json({ count: requests.length, requests });
+  } catch (error) {
+    res.status(500).json({ message: 'Server xatosi', error: error.message });
+  }
+};
+
+module.exports = { login, createEventRequest, createCharityRequest, getMyRequests };
