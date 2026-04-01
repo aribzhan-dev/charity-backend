@@ -5,7 +5,7 @@ const protect = (req, res, next) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Token mavjud emas' });
+      return res.status(401).json({ message: 'Token not found' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -17,12 +17,12 @@ const protect = (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token muddati tugagan' });
+      return res.status(401).json({ message: 'Token expired' });
     }
     if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Token yaroqsiz' });
+      return res.status(401).json({ message: 'Invalid token' });
     }
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

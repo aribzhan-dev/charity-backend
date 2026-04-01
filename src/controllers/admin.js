@@ -6,19 +6,18 @@ const CharityRequest = require('../models/CharityRequest');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const admin = await Admin.findOne({ email });
     if (!admin) {
-      return res.status(404).json({ message: 'Admin topilmadi' });
+      return res.status(404).json({ message: 'Admin not found' });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Parol noto\'ğri' });
+      return res.status(401).json({ message: 'Incorrect password' });
     }
 
     const token = jwt.sign(
@@ -27,13 +26,11 @@ const login = async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    res.status(200).json({ message: 'Login muvaffaqiyatli', token });
+    res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const createCompany = async (req, res) => {
   try {
@@ -41,7 +38,7 @@ const createCompany = async (req, res) => {
 
     const existing = await Company.findOne({ email });
     if (existing) {
-      return res.status(400).json({ message: 'Bu email allaqachon mavjud' });
+      return res.status(400).json({ message: 'This email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -53,13 +50,11 @@ const createCompany = async (req, res) => {
       type
     });
 
-    res.status(201).json({ message: 'Company yaratildi', company });
+    res.status(201).json({ message: 'Company created', company });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const getCompanies = async (req, res) => {
   try {
@@ -70,18 +65,16 @@ const getCompanies = async (req, res) => {
 
     res.status(200).json({ count: companies.length, companies });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const getUsers = async (req, res) => {
   try {
     const users = await User.find().select('-password');
     res.status(200).json({ count: users.length, users });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -109,10 +102,9 @@ const getRequests = async (req, res) => {
       charityRequests
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
 
 const acceptRequest = async (req, res) => {
   try {
@@ -126,16 +118,14 @@ const acceptRequest = async (req, res) => {
     );
 
     if (!request) {
-      return res.status(404).json({ message: 'Request topilmadi' });
+      return res.status(404).json({ message: 'Request not found' });
     }
 
     res.status(200).json({ message: 'Request accepted', request });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const rejectRequest = async (req, res) => {
   try {
@@ -150,12 +140,12 @@ const rejectRequest = async (req, res) => {
     );
 
     if (!request) {
-      return res.status(404).json({ message: 'Request topilmadi' });
+      return res.status(404).json({ message: 'Request not found' });
     }
 
     res.status(200).json({ message: 'Request rejected', request });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

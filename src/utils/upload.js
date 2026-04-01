@@ -36,7 +36,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error(`Ruxsat etilmagan fayl turi: ${file.mimetype}`), false);
+    cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
   }
 };
 

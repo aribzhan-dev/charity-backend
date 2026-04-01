@@ -10,7 +10,7 @@ const register = async (req, res) => {
 
     const existing = await User.findOne({ email });
     if (existing) {
-      return res.status(400).json({ message: 'Bu email allaqachon mavjud' });
+      return res.status(400).json({ message: 'This email already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -22,16 +22,14 @@ const register = async (req, res) => {
     );
 
     res.status(201).json({
-      message: 'Ro\'yxatdan o\'tildi',
+      message: 'Registered successfully',
       token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const login = async (req, res) => {
   try {
@@ -39,12 +37,12 @@ const login = async (req, res) => {
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: 'Foydalanuvchi topilmadi' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Parol noto\'ğri' });
+      return res.status(401).json({ message: 'Incorrect password' });
     }
 
     const token = jwt.sign(
@@ -54,12 +52,12 @@ const login = async (req, res) => {
     );
 
     res.status(200).json({
-      message: 'Login muvaffaqiyatli',
+      message: 'Login successful',
       token,
       user: { id: user._id, name: user.name, email: user.email }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -71,7 +69,7 @@ const getEvents = async (req, res) => {
 
     res.status(200).json({ count: events.length, events });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -80,46 +78,40 @@ const joinEvent = async (req, res) => {
     const event = await EventRequest.findById(req.params.id);
 
     if (!event) {
-      return res.status(404).json({ message: 'Event topilmadi' });
+      return res.status(404).json({ message: 'Event not found' });
     }
 
     if (event.status !== 'accepted') {
-      return res.status(400).json({ message: 'Bu eventga qo\'shilish mumkin emas' });
+      return res.status(400).json({ message: 'Cannot join this event' });
     }
 
     const alreadyJoined = event.attendees.includes(req.user.id);
     if (alreadyJoined) {
-      return res.status(400).json({ message: 'Siz allaqachon qo\'shilgansiz' });
+      return res.status(400).json({ message: 'You have already joined' });
     }
 
     event.attendees.push(req.user.id);
     await event.save(); 
 
     res.status(200).json({
-      message: 'Eventga qo\'shildingiz',
+      message: 'Joined event successfully',
       attendees: event.attendees.length,
       peopleNeeded: event.peopleNeeded,
       status: event.status
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.status(200).json({ user });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
-
-
 
 const getCharities = async (req, res) => {
   try {
@@ -129,7 +121,7 @@ const getCharities = async (req, res) => {
 
     res.status(200).json({ count: charities.length, charities });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -137,17 +129,17 @@ const donateToCharity = async (req, res) => {
   try {
     const { amount } = req.body;  
     if (!amount || amount <= 0) {
-      return res.status(400).json({ message: 'Pul miqdori noto\'g\'ri' });
+      return res.status(400).json({ message: 'Invalid amount' });
     }
 
     const charity = await CharityRequest.findById(req.params.id);
 
     if (!charity) {
-      return res.status(404).json({ message: 'Charity topilmadi' });
+      return res.status(404).json({ message: 'Charity not found' });
     }
 
     if (charity.status !== 'accepted') {
-      return res.status(400).json({ message: 'Bu charityga yordam berish mumkin emas' });
+      return res.status(400).json({ message: 'Cannot donate to this charity' });
     }
 
     charity.donors.push({ user: req.user.id, amount });
@@ -156,7 +148,7 @@ const donateToCharity = async (req, res) => {
     await charity.save();
 
     res.status(200).json({
-      message: 'Rahmat! Yordam uchun payment linkga o\'ting',
+      message: 'Thank you! Please proceed to the payment link for donation',
       payment_link: charity.payment_link,
       collectedAmount: charity.collectedAmount,
       targetAmount: charity.targetAmount,
@@ -164,7 +156,7 @@ const donateToCharity = async (req, res) => {
       status: charity.status
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

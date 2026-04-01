@@ -10,16 +10,16 @@ const login = async (req, res) => {
 
     const company = await Company.findOne({ email });
     if (!company) {
-      return res.status(404).json({ message: 'Company topilmadi' });
+      return res.status(404).json({ message: 'Company not found' });
     }
 
     if (!company.isActive) {
-      return res.status(403).json({ message: 'Company bloklangan' });
+      return res.status(403).json({ message: 'Company blocked' });
     }
 
     const isMatch = await bcrypt.compare(password, company.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Parol noto\'ğri' });
+      return res.status(401).json({ message: 'Incorrect password' });
     }
 
     const token = jwt.sign(
@@ -29,7 +29,7 @@ const login = async (req, res) => {
     );
 
     res.status(200).json({
-      message: 'Login muvaffaqiyatli',
+      message: 'Login successful',
       token,
       company: {
         id: company._id,
@@ -39,11 +39,9 @@ const login = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
 const createEventRequest = async (req, res) => {
   try {
@@ -53,7 +51,7 @@ const createEventRequest = async (req, res) => {
 
 
     if (req.user.type !== 'event') {
-      return res.status(403).json({ message: 'Faqat event company yuborishi mumkin' });
+      return res.status(403).json({ message: 'Only event companies can send this' });
     }
 
     const files = req.files?.map(file => ({
@@ -73,14 +71,11 @@ const createEventRequest = async (req, res) => {
       files
     });
 
-    res.status(201).json({ message: 'Event request yuborildi', eventRequest });
+    res.status(201).json({ message: 'Event request sent', eventRequest });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
-
 
 const createCharityRequest = async (req, res) => {
   try {
@@ -88,7 +83,7 @@ const createCharityRequest = async (req, res) => {
 
 
     if (req.user.type !== 'charity') {
-      return res.status(403).json({ message: 'Faqat charity company yuborishi mumkin' });
+      return res.status(403).json({ message: 'Only charity companies can send this' });
     }
 
     const files = req.files?.map(file => ({
@@ -106,14 +101,11 @@ const createCharityRequest = async (req, res) => {
       files
     });
 
-    res.status(201).json({ message: 'Charity request yuborildi', charityRequest });
+    res.status(201).json({ message: 'Charity request sent', charityRequest });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
-
 
 const getMyRequests = async (req, res) => {
   try {
@@ -125,7 +117,7 @@ const getMyRequests = async (req, res) => {
 
     res.status(200).json({ count: requests.length, requests });
   } catch (error) {
-    res.status(500).json({ message: 'Server xatosi', error: error.message });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
