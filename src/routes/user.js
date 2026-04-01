@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const {
   register,
-  login,
   getEvents,
   joinEvent,
   getProfile,
@@ -16,7 +15,6 @@ const userOnly = [protect, allowRoles('user')];
 
 
 router.post('/register', register);
-router.post('/login', login);
 
 router.get('/profile', ...userOnly, getProfile);
 

@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 
+app.use('/api/auth', require('./src/routes/auth'));
 app.use('/api/admin', require('./src/routes/admin'));
 app.use('/api/company', require('./src/routes/company'));
 app.use('/api/user', require('./src/routes/user'));

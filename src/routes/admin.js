@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const {
-  login,
   createCompany,
   getCompanies,
   getUsers,
@@ -13,7 +12,6 @@ const { allowRoles } = require('../middleware/roleMiddleware');
 
 const adminOnly = [protect, allowRoles('admin')];
 
-router.post('/login', login);
 
 router.post('/company', ...adminOnly, createCompany);
 router.get('/companies', ...adminOnly, getCompanies);

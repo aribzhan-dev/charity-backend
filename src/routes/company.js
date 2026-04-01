@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const {
-  login,
   createEventRequest,
   createCharityRequest,
   getMyRequests
@@ -12,7 +11,6 @@ const upload = require('../utils/upload');
 const companyOnly = [protect, allowRoles('company')];
 
 
-router.post('/login', login);
 
 router.post('/requests/event', ...companyOnly, upload.array('files', 10), createEventRequest);
 router.post('/requests/charity', ...companyOnly, upload.array('files', 10), createCharityRequest);

@@ -4,44 +4,6 @@ const CharityRequest = require('../models/CharityRequest');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const company = await Company.findOne({ email });
-    if (!company) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
-
-    if (!company.isActive) {
-      return res.status(403).json({ message: 'Company blocked' });
-    }
-
-    const isMatch = await bcrypt.compare(password, company.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Incorrect password' });
-    }
-
-    const token = jwt.sign(
-      { id: company._id, role: 'company', type: company.type },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      company: {
-        id: company._id,
-        company_name: company.company_name,
-        email: company.email,
-        type: company.type
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-};
 
 const createEventRequest = async (req, res) => {
   try {
@@ -121,4 +83,4 @@ const getMyRequests = async (req, res) => {
   }
 };
 
-module.exports = { login, createEventRequest, createCharityRequest, getMyRequests };
+module.exports = { createEventRequest, createCharityRequest, getMyRequests };
