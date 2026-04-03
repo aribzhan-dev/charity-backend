@@ -16,11 +16,11 @@ const createEventRequest = async (req, res) => {
       return res.status(403).json({ message: 'Only event companies can send this' });
     }
 
-    const files = req.files?.map(file => ({
+    const files = (req.files || []).map(file => ({
       originalName: file.originalname,
       path: file.path,
       mimetype: file.mimetype
-    })) || [];
+    }));
 
     const eventRequest = await EventRequest.create({
       company: req.user.id,
@@ -41,30 +41,38 @@ const createEventRequest = async (req, res) => {
 
 const createCharityRequest = async (req, res) => {
   try {
-    const { title, description, targetAmount, payment_link } = req.body;
 
+    const { title, description, targetAmount, payment_link } = req.body;
 
     if (req.user.type !== 'charity') {
       return res.status(403).json({ message: 'Only charity companies can send this' });
     }
 
-    const files = req.files?.map(file => ({
+    const target = Number(targetAmount);
+
+    if (!title || !description || !target) {
+      return res.status(400).json({ message: "Invalid data" });
+    }
+
+    const files = (req.files || []).map(file => ({
       originalName: file.originalname,
       path: file.path,
       mimetype: file.mimetype
-    })) || [];
+    }));
 
     const charityRequest = await CharityRequest.create({
       company: req.user.id,
       title,
       description,
-      targetAmount,
-      payment_link, 
+      targetAmount: target,
+      payment_link,
       files
     });
 
     res.status(201).json({ message: 'Charity request sent', charityRequest });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
