@@ -5,17 +5,14 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-ADMIN_EMAIL = process.env.ADMIN_EMAIL
-ADMIN_PASSWORD = process.env.ADMIN_PASSWORD
-MONGO_URI = process.env.MONGO_URI
 
 const createDefaultAdmin = async () => {
   try {
-    const existing = await Admin.findOne({ email: ADMIN_EMAIL });
+    const existing = await Admin.findOne({ email: process.env.ADMIN_EMAIL });
     if (!existing) {
-      const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, 10);
+      const hashedPassword = await bcrypt.hash( process.env.ADMIN_PASSWORD, 10);
       await Admin.create({
-        email: ADMIN_EMAIL,
+        email: process.env.ADMIN_EMAIL,
         password: hashedPassword
       });
       console.log('Default admin created');
@@ -28,7 +25,7 @@ const createDefaultAdmin = async () => {
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected');
     await createDefaultAdmin();
   } catch (error) {
