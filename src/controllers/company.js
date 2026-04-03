@@ -7,6 +7,8 @@ const jwt = require('jsonwebtoken');
 
 const createEventRequest = async (req, res) => {
   try {
+    console.log(req.files); 
+    
     const { title, description, date, location, peopleNeeded } = req.body;
 
     const transferDetails = req.body.transferDetails === 'true' ? true : false;
