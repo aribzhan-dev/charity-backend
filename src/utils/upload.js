@@ -1,5 +1,6 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 
@@ -13,7 +14,12 @@ const getFolder = (mimetype) => {
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const folder = getFolder(file.mimetype);
-    cb(null, `uploads/${folder}`);
+    const uploadDir = path.resolve(process.cwd(), 'uploads', folder);
+
+    fs.mkdir(uploadDir, { recursive: true }, (err) => {
+      if (err) return cb(err);
+      cb(null, uploadDir);
+    });
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);      

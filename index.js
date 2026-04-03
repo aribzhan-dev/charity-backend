@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const connectDB = require('./src/config/db');
 
 dotenv.config();
@@ -18,7 +19,7 @@ app.use('/api/admin', require('./src/routes/admin'));
 app.use('/api/company', require('./src/routes/company'));
 app.use('/api/user', require('./src/routes/user'));
 
-app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Server is running' });
